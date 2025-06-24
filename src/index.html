@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Content Security Policy to allow Power BI and Firebase -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self'; 
+      connect-src 'self' https://team-staging.softpers.com/api/send-test-email http://localhost:3001 https://us-central1-solution-360-v2.cloudfunctions.net https://*.powerbi.com https://*.analysis.windows.net https://api.ipify.org https://*.googleapis.com https://*.firebaseio.com https://*.firebase.app wss://*.firebaseio.com https://*.firebaseapp.com https://code.jquery.com; 
+      img-src 'self' https://*.powerbi.com https://*.analysis.windows.net https://*.googleapis.com https://*.firebaseio.com https://*.firebase.app https://*.firebaseapp.com data: blob:; 
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.powerbi.com https://*.analysis.windows.net https://*.googleapis.com https://*.gstatic.com https://*.firebase.app https://*.firebaseapp.com https://cdn.jsdelivr.net https://code.jquery.com; 
+      style-src 'self' 'unsafe-inline' https://*.googleapis.com; 
+      font-src 'self' https://*.gstatic.com data:;
+      frame-src 'self' https://*.powerbi.com https://*.analysis.windows.net https://*.firebaseio.com https://*.firebase.app https://*.firebaseapp.com blob:;"
+    >
+    <title>Solution 360</title>
+    <!-- Load jQuery and PowerBI SDK before the app starts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.22.3/dist/powerbi.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Politique de sécurité du contenu pour autoriser Power BI et Firebase -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'none'; 
+      connect-src 'self' https://team-staging.softpers.com/api/send-test-email https://us-central1-solution-360-v2.cloudfunctions.net https://*.powerbi.com https://*.analysis.windows.net https://api.ipify.org https://*.googleapis.com https://*.firebaseio.com https://*.firebase.app wss://*.firebaseio.com https://*.firebaseapp.com https://api.emailjs.com https://send.api.mailtrap.io; 
+      img-src 'self' https://*.powerbi.com https://*.analysis.windows.net https://*.googleapis.com https://*.firebaseio.com https://*.firebase.app https://*.firebaseapp.com data: blob:; 
+      script-src 'self' https://*.powerbi.com https://*.analysis.windows.net https://*.googleapis.com https://*.gstatic.com https://*.firebase.app https://*.firebaseapp.com https://cdn.jsdelivr.net https://code.jquery.com https://cdn.emailjs.com; 
+      style-src 'self' 'unsafe-inline' https://*.googleapis.com https://fonts.googleapis.com; 
+      font-src 'self' https://*.gstatic.com https://fonts.gstatic.com data:;
+      frame-src 'self' https://*.powerbi.com https://*.analysis.windows.net https://*.firebaseio.com https://*.firebase.app https://*.firebaseapp.com blob:;
+      base-uri 'self';
+      form-action 'self';
+      manifest-src 'self';
+      object-src 'none';
+      worker-src 'self' blob:;"
+    >
+    <title>Solution 360</title>
+    <!-- Chargement de jQuery et du SDK PowerBI avant le démarrage de l'application -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.22.3/dist/powerbi.min.js" integrity="sha256-9a0g+BGQdDEO/LPLmXAO+nWWGVbZ2QCHsP0vEnm1Vn4=" crossorigin="anonymous"></script>
+    <!-- Ajout de la police Inter avec des variantes optimisées -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Optimisation du rendu du texte pour une meilleure lisibilité -->
+    <style>
+      html {
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+    </style>
+    <!-- Journalisation d'événements pour le débogage -->
+    <script>
+      // Surveiller les événements iframe pour le débogage
+      window.addEventListener('message', function(event) {
+        try {
+          // N'enregistrer que les messages relatifs à PowerBI pour éviter le spam de la console
+          if (event.data && (
+              event.origin.includes('powerbi.com') || 
+              (typeof event.data === 'string' && event.data.includes('powerbi')) ||
+              (typeof event.data === 'object' && event.data.event && event.data.event.includes('powerbi'))
+            )) {
+            console.log('PowerBI message:', event.data);
+          }
+        } catch (e) {
+          // Capturer les erreurs d'analyse JSON
+          console.error('Error processing message event:', e);
+        }
+      });
+      
+      // Contourner tout blocage potentiel
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          // Trouver tous les iframes PowerBI et s'assurer qu'ils sont visibles
+          const frames = document.querySelectorAll('iframe[src*="powerbi.com"]');
+          frames.forEach(frame => {
+            frame.style.opacity = '1';
+            frame.style.visibility = 'visible';
+            frame.style.display = 'block';
+          });
+        }, 1000);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

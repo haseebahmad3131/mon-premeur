@@ -1,0 +1,1046 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Keyframes pour l'animation du modal */
+@keyframes overlayShow {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes contentShow {
+  from { 
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to { 
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Styles personnalisés pour les intégrations HTML Power BI */
+.powerbi-html-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  min-height: 400px;
+}
+
+.powerbi-html-container iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: 0;
+  display: block;
+  min-height: 400px;
+}
+
+.powerbi-html-container img,
+.powerbi-html-container svg,
+.powerbi-html-container object {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Assurer que le contenu HTML s'adapte correctement */
+.powerbi-html-container * {
+  max-width: 100%;
+}
+
+/* Ajustements d'iframe Power BI */
+iframe[src*="powerbi.com"] {
+  min-height: 500px !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Conteneur Power BI pour l'intégration directe */
+.direct-powerbi-container {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  position: relative;
+}
+
+.direct-powerbi-container iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 500px !important;
+  border: none !important;
+  display: block !important;
+}
+
+/* Empêcher le scintillement d'iframe pendant les transitions */
+.powerbi-iframe {
+  transition: opacity 0.2s ease;
+  opacity: 1;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 500px !important;
+  display: block !important;
+}
+
+/* Ajouter des styles personnalisés pour les conteneurs Power BI en état d'erreur */
+.powerbi-error {
+  background-color: rgba(254, 226, 226, 0.5);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+/* Assurer que tous les iframes Power BI sont visibles */
+iframe[src*="app.powerbi.com"],
+iframe[src*="msit.powerbi.com"],
+iframe[src*="view.powerbi.com"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  min-height: 500px !important;
+}
+
+/* Styles du nouveau design */
+:root {
+  /* Light mode colors - Style Airbnb */
+  --bg-primary: #f7f7f7;  /* Fond principal très clair comme Airbnb */
+  --bg-secondary: #f5f5f5; /* Fond secondaire légèrement grisé */
+  --bg-card: #ffffff;      /* Cartes en blanc pur */
+  --text-primary: #222222; /* Texte principal presque noir, comme Airbnb */
+  --text-secondary: #717171; /* Texte secondaire gris, comme Airbnb */
+  --border-color: #dddddd;  /* Bordures très subtiles, comme Airbnb */
+  
+  /* Couleurs Airbnb */
+  --airbnb-red: #FF5A5F;      /* Rouge Airbnb signature */
+  --airbnb-pink: #FF385C;     /* Rose Airbnb (variante) */
+  --airbnb-dark-red: #D93B30; /* Rouge foncé pour hover */
+  --airbnb-teal: #00A699;     /* Turquoise Airbnb */
+  --airbnb-dark-teal: #008F86; /* Turquoise foncé pour hover */
+  --airbnb-navy: #484848;     /* Bleu marine pour texte */
+  
+  /* Nouvelles couleurs pour les boutons et éléments interactifs */
+  --btn-primary-bg: var(--airbnb-red);
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: var(--airbnb-red);
+  --btn-primary-hover: var(--airbnb-dark-red);
+  
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-text: var(--airbnb-navy);
+  --btn-secondary-border: var(--border-color);
+  --btn-secondary-hover: #f7f7f7;
+  
+  --menu-active-bg: rgba(255, 90, 95, 0.1);
+  --menu-active-text: var(--airbnb-red);
+  --menu-hover-bg: #f7f7f7;
+  --menu-hover-border: var(--border-color);
+  
+  /* Optimisation de la typographie */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+  --letter-spacing: -0.01em;
+  --line-height: 1.5;
+
+  /* Ombres pour le mode clair */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.15);
+  
+  /* Ombres de carte comme Airbnb */
+  --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.15);
+  
+  /* Rayons de bordure comme Airbnb */
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  
+  /* Variables pour les formulaires */
+  --input-height: 48px;
+  --input-padding: 14px 16px;
+  --input-padding-with-icon: 14px 16px 14px 48px;
+  --input-icon-padding: 16px;
+  --input-icon-size: 20px;
+  --label-margin: 0 0 8px 0;
+  --field-margin: 0 0 20px 0;
+}
+
+:root[data-theme="dark"] {
+  /* Dark mode colors - Optimisés pour la lisibilité */
+  --bg-primary: #0A0B0D;
+  --bg-secondary: #141518;
+  --bg-card: #1A1B1E;
+  
+  /* Réduction de la luminosité du texte blanc - Plus doux pour les yeux */
+  --text-primary: rgba(235, 235, 245, 0.9); /* #EBEBF5 avec 90% d'opacité */
+  --text-secondary: rgba(176, 180, 194, 0.86); /* #B0B4C2 avec 86% d'opacité */
+  --border-color: rgba(55, 58, 64, 0.8); /* #373A40 avec 80% d'opacité */
+  
+  /* Ombres subtiles pour une meilleure perception de profondeur */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 8px 12px rgba(0, 0, 0, 0.6);
+  
+  /* Utilisation des mêmes rayons de bordure que le mode clair */
+  /* Pas besoin de les redéfinir car ils sont hérités */
+}
+
+/* Police optimisée pour la lecture à l'écran */
+@layer base {
+  html {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    letter-spacing: var(--letter-spacing);
+    line-height: var(--line-height);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  /* Optimisation des éléments textuels en mode sombre */
+  :root[data-theme="dark"] h1, 
+  :root[data-theme="dark"] h2, 
+  :root[data-theme="dark"] h3, 
+  :root[data-theme="dark"] h4 {
+    font-weight: var(--font-weight-medium);
+  }
+  
+  :root[data-theme="dark"] p, 
+  :root[data-theme="dark"] li, 
+  :root[data-theme="dark"] span:not(.gradient-text) {
+    font-weight: var(--font-weight-normal);
+  }
+  
+  /* Optimiser la lisibilité des liens en mode sombre */
+  :root[data-theme="dark"] a:not(.gradient-text) {
+    color: rgb(98, 179, 237);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.15em;
+  }
+  
+  /* Amélioration de l'apparence des tableaux en mode sombre */
+  :root[data-theme="dark"] table {
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+  }
+  
+  :root[data-theme="dark"] table thead th {
+    background-color: rgba(26, 27, 30, 0.95);
+    border-bottom: 2px solid rgba(55, 58, 64, 0.5);
+    padding: 16px;
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.5px;
+  }
+  
+  :root[data-theme="dark"] table thead th:first-child {
+    padding-left: 24px;
+  }
+  
+  :root[data-theme="dark"] table thead th:last-child {
+    padding-right: 24px;
+  }
+  
+  :root[data-theme="dark"] table tbody tr {
+    transition: background-color 0.15s ease, transform 0.1s ease;
+  }
+  
+  :root[data-theme="dark"] table tbody tr:hover {
+    background-color: rgba(55, 58, 64, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+  }
+  
+  :root[data-theme="dark"] table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid rgba(55, 58, 64, 0.4);
+    vertical-align: middle;
+  }
+  
+  :root[data-theme="dark"] table tbody td:first-child {
+    padding-left: 24px;
+  }
+  
+  :root[data-theme="dark"] table tbody td:last-child {
+    padding-right: 24px;
+  }
+  
+  :root[data-theme="dark"] table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Ajouter un effet de lueur autour des badges de rôle */
+  :root[data-theme="dark"] .role-badge {
+    box-shadow: 0 0 8px rgba(var(--badge-glow-color), 0.25);
+    backdrop-filter: blur(8px);
+    border-radius: 100px;
+    padding: 4px 12px;
+  }
+  
+  /* Amélioration des cartes en mode sombre */
+  :root[data-theme="dark"] .card-gradient,
+  :root[data-theme="dark"] .bg-card {
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+  }
+  
+  :root[data-theme="dark"] .card-gradient:hover,
+  :root[data-theme="dark"] .bg-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* Style des cartes du dashboard en mode sombre */
+  :root[data-theme="dark"] .bg-card.p-6.rounded-lg.shadow-sm.border.border-theme {
+    padding: 24px;
+    border-radius: var(--border-radius-md);
+  }
+  
+  /* Amélioration des inputs en mode sombre */
+  :root[data-theme="dark"] input[type="text"],
+  :root[data-theme="dark"] input[type="email"],
+  :root[data-theme="dark"] input[type="password"],
+  :root[data-theme="dark"] input[type="search"],
+  :root[data-theme="dark"] input[type="number"],
+  :root[data-theme="dark"] select,
+  :root[data-theme="dark"] textarea {
+    background-color: rgba(26, 27, 30, 0.95);
+    border: 1px solid rgba(55, 58, 64, 0.8);
+    border-radius: var(--border-radius-sm);
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  
+  :root[data-theme="dark"] input:focus,
+  :root[data-theme="dark"] select:focus,
+  :root[data-theme="dark"] textarea:focus {
+    border-color: #6366F1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    outline: none;
+  }
+  
+  /* Amélioration des boutons en mode sombre */
+  :root[data-theme="dark"] button.bg-gradient-to-r.from-primary.to-secondary,
+  :root[data-theme="dark"] a.bg-gradient-to-r.from-primary.to-secondary {
+    border-radius: var(--border-radius-sm);
+    padding: 12px 24px;
+    font-weight: var(--font-weight-bold);
+    transition: all 0.2s ease;
+  }
+  
+  :root[data-theme="dark"] button.bg-gradient-to-r.from-primary.to-secondary:hover,
+  :root[data-theme="dark"] a.bg-gradient-to-r.from-primary.to-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* Style du header en mode sombre */
+  :root[data-theme="dark"] header {
+    padding: 16px 0;
+  }
+  
+  /* Navigation en mode sombre */
+  :root[data-theme="dark"] a.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.duration-200 {
+    border-radius: var(--border-radius-sm);
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+  }
+  
+  :root[data-theme="dark"] aside.bg-card.shadow-lg {
+    padding: 24px 0;
+  }
+  
+  :root[data-theme="dark"] aside nav {
+    padding: 0 16px;
+  }
+  
+  /* Modales en mode sombre */
+  :root[data-theme="dark"] .modal-content, 
+  :root[data-theme="dark"] div[role="dialog"] > div {
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Style de tableau amélioré pour le mode clair */
+  :root:not([data-theme="dark"]) table {
+    border-spacing: 0;
+    border-collapse: separate;
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+  }
+  
+  :root:not([data-theme="dark"]) table thead th {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px;
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+  
+  :root:not([data-theme="dark"]) table thead th:first-child {
+    padding-left: 24px;
+  }
+  
+  :root:not([data-theme="dark"]) table thead th:last-child {
+    padding-right: 24px;
+  }
+  
+  :root:not([data-theme="dark"]) table tbody tr {
+    transition: background-color 0.2s ease;
+  }
+  
+  :root:not([data-theme="dark"]) table tbody tr:hover {
+    background-color: #f8f8f8;
+  }
+  
+  :root:not([data-theme="dark"]) table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    font-size: 14px;
+  }
+  
+  :root:not([data-theme="dark"]) table tbody td:first-child {
+    padding-left: 24px;
+  }
+  
+  :root:not([data-theme="dark"]) table tbody td:last-child {
+    padding-right: 24px;
+  }
+  
+  :root:not([data-theme="dark"]) table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Améliorations pour le menu en mode clair - Style Airbnb */
+  :root:not([data-theme="dark"]) a.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.duration-200 {
+    border-radius: var(--border-radius-sm);
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+  }
+  
+  :root:not([data-theme="dark"]) a.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.duration-200:hover {
+    background-color: var(--menu-hover-bg);
+    color: var(--airbnb-red);
+  }
+  
+  :root:not([data-theme="dark"]) a.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.duration-200.bg-primary\/10 {
+    background-color: var(--menu-active-bg) !important;
+    color: var(--airbnb-red) !important;
+    font-weight: var(--font-weight-bold);
+  }
+  
+  /* Boutons en mode clair avec style Airbnb */
+  :root:not([data-theme="dark"]) button.bg-gradient-to-r.from-primary.to-secondary,
+  :root:not([data-theme="dark"]) a.bg-gradient-to-r.from-primary.to-secondary {
+    background: var(--airbnb-red);
+    background-image: none;
+    color: white;
+    font-weight: var(--font-weight-bold);
+    padding: 12px 24px;
+    border-radius: var(--border-radius-sm);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  
+  :root:not([data-theme="dark"]) button.bg-gradient-to-r.from-primary.to-secondary:hover,
+  :root:not([data-theme="dark"]) a.bg-gradient-to-r.from-primary.to-secondary:hover {
+    background: var(--airbnb-dark-red);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* Cartes en mode clair avec style Airbnb */
+  :root:not([data-theme="dark"]) .card-gradient,
+  :root:not([data-theme="dark"]) .bg-card {
+    background-color: white;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+  }
+  
+  :root:not([data-theme="dark"]) .card-gradient:hover,
+  :root:not([data-theme="dark"]) .bg-card:hover {
+    box-shadow: var(--card-shadow);
+  }
+  
+  /* Style des cartes du dashboard en mode clair */
+  :root:not([data-theme="dark"]) .bg-card.p-6.rounded-lg.shadow-sm.border.border-theme {
+    padding: 24px;
+    border-radius: var(--border-radius-md);
+  }
+  
+  /* Style du header en mode clair */
+  :root:not([data-theme="dark"]) header {
+    background-color: transparent;
+    padding: 16px 0;
+  }
+  
+  /* Style des inputs en mode clair */
+  :root:not([data-theme="dark"]) input[type="text"],
+  :root:not([data-theme="dark"]) input[type="email"],
+  :root:not([data-theme="dark"]) input[type="password"],
+  :root:not([data-theme="dark"]) input[type="search"],
+  :root:not([data-theme="dark"]) input[type="number"],
+  :root:not([data-theme="dark"]) select,
+  :root:not([data-theme="dark"]) textarea {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  
+  :root:not([data-theme="dark"]) input:focus,
+  :root:not([data-theme="dark"]) select:focus,
+  :root:not([data-theme="dark"]) textarea:focus {
+    border-color: var(--airbnb-red);
+    box-shadow: 0 0 0 2px rgba(255, 90, 95, 0.2);
+    outline: none;
+  }
+  
+  /* Style des badges en mode clair */
+  :root:not([data-theme="dark"]) .role-badge {
+    font-weight: var(--font-weight-medium);
+    font-size: 12px;
+    border-radius: 100px;
+    padding: 4px 12px;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-gradient-to-r from-[#00E6CA] to-[#00B1E5] bg-clip-text text-transparent;
+  }
+  
+  .gradient-border {
+    @apply border border-transparent bg-gradient-to-r from-[#00E6CA] to-[#00B1E5] bg-clip-border;
+  }
+
+  .card-gradient {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+  }
+
+  .text-primary-color {
+    color: var(--text-primary);
+  }
+
+  .text-secondary-color {
+    color: var(--text-secondary);
+  }
+
+  .border-theme {
+    border-color: var(--border-color);
+  }
+
+  .bg-theme {
+    background-color: var(--bg-primary);
+  }
+
+  .bg-card {
+    background-color: var(--bg-card);
+  }
+  
+  /* Styles optimisés pour la lisibilité en dark mode */
+  .dark-optimized-heading {
+    font-weight: var(--font-weight-medium);
+    line-height: 1.3;
+  }
+  
+  .dark-optimized-text {
+    font-weight: var(--font-weight-normal);
+    opacity: 0.95;
+  }
+  
+  /* Composants avec contraste amélioré pour le mode sombre */
+  :root[data-theme="dark"] .btn {
+    font-weight: var(--font-weight-medium);
+  }
+  
+  :root[data-theme="dark"] .badge {
+    font-weight: var(--font-weight-medium);
+  }
+  
+  :root[data-theme="dark"] .form-label {
+    opacity: 0.95;
+  }
+  
+  /* Adoucir les contours des cartes en mode sombre */
+  :root[data-theme="dark"] .card, 
+  :root[data-theme="dark"] .bg-card {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* Amélioration des transitions des éléments de navigation */
+  .nav-link {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  /* Effet de survol doux pour les liens dans la navigation */
+  .nav-link:hover {
+    @apply bg-primary/5 text-primary;
+    transform: translateX(2px);
+  }
+  
+  /* Animation d'interaction active pour les éléments de navigation */
+  .nav-link:active {
+    @apply transform scale-95;
+  }
+  
+  /* Styles améliorés pour les tableaux */
+  .table-elegant {
+    @apply w-full overflow-hidden rounded-lg;
+  }
+  
+  .table-elegant thead {
+    @apply bg-card border-b border-theme;
+  }
+  
+  .table-elegant thead th {
+    @apply px-6 py-3 text-left text-xs font-medium text-secondary-color uppercase tracking-wider;
+  }
+  
+  .table-elegant tbody {
+    @apply bg-card divide-y divide-theme;
+  }
+  
+  .table-elegant tbody tr {
+    @apply transition-all duration-200 ease-in-out hover:bg-theme;
+  }
+  
+  .table-elegant tbody td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-primary-color;
+  }
+  
+  /* Badges de statut et de rôle avec effet subtil */
+  .role-badge {
+    @apply px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center justify-center gap-1;
+    backdrop-filter: blur(4px);
+    letter-spacing: 0.01em;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+  
+  .role-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Boutons d'action avec animations subtiles */
+  .action-button {
+    @apply p-1.5 rounded-full transition-all duration-200;
+  }
+  
+  .action-button:hover {
+    @apply bg-primary/10;
+    transform: scale(1.1);
+  }
+  
+  .action-button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Style de recherche amélioré */
+  .search-input {
+    @apply pl-10 pr-4 py-2.5 bg-theme border border-theme rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary text-primary-color;
+    transition: all 0.2s ease;
+  }
+  
+  .search-input:focus {
+    box-shadow: 0 0 0 3px rgba(0, 230, 202, 0.1);
+    border-color: rgba(0, 230, 202, 0.3);
+  }
+  
+  /* Style de cellule avec effet de bordure subtil */
+  .cell-highlight {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .cell-highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00E6CA, #00B1E5);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  
+  .cell-highlight:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Boutons en mode clair avec style Airbnb */
+  :root:not([data-theme="dark"]) .btn-primary,
+  :root:not([data-theme="dark"]) button[variant="primary"] {
+    background-color: var(--airbnb-red);
+    color: white;
+    border: none;
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--border-radius-sm);
+    padding: 12px 24px;
+    transition: all 0.2s ease;
+  }
+  
+  :root:not([data-theme="dark"]) .btn-primary:hover,
+  :root:not([data-theme="dark"]) button[variant="primary"]:hover {
+    background-color: var(--airbnb-dark-red);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  :root:not([data-theme="dark"]) .btn-outline,
+  :root:not([data-theme="dark"]) button[variant="outline"] {
+    background-color: white;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 12px 24px;
+    font-weight: var(--font-weight-medium);
+    transition: all 0.2s ease;
+  }
+  
+  :root:not([data-theme="dark"]) .btn-outline:hover,
+  :root:not([data-theme="dark"]) button[variant="outline"]:hover {
+    border-color: var(--text-primary);
+    background-color: #f7f7f7;
+  }
+  
+  /* Style de navigation sidebar Airbnb-like */
+  :root:not([data-theme="dark"]) aside.bg-card.shadow-lg {
+    background-color: white;
+    border-right: 1px solid var(--border-color);
+    padding: 24px 0;
+  }
+  
+  :root:not([data-theme="dark"]) aside nav {
+    padding: 0 16px;
+  }
+  
+  /* Style des modales Airbnb-like */
+  :root:not([data-theme="dark"]) .modal-content, 
+  :root:not([data-theme="dark"]) div[role="dialog"] > div {
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+  }
+  
+  /* Style Airbnb pour les icônes dans les cartes */
+  :root:not([data-theme="dark"]) .p-3.bg-primary\/10.rounded-full,
+  :root:not([data-theme="dark"]) .p-3.bg-secondary\/10.rounded-full,
+  :root:not([data-theme="dark"]) .p-2.bg-primary\/10.rounded-lg,
+  :root:not([data-theme="dark"]) .p-2.bg-secondary\/10.rounded-lg {
+    background-color: rgba(255, 90, 95, 0.1);
+  }
+  
+  :root:not([data-theme="dark"]) .p-3.bg-primary\/10.rounded-full svg,
+  :root:not([data-theme="dark"]) .p-2.bg-primary\/10.rounded-lg svg {
+    color: var(--airbnb-red);
+  }
+  
+  :root:not([data-theme="dark"]) .p-3.bg-secondary\/10.rounded-full svg,
+  :root:not([data-theme="dark"]) .p-2.bg-secondary\/10.rounded-lg svg {
+    color: var(--airbnb-red);
+  }
+  
+  /* Boutons en mode sombre améliorés */
+  :root[data-theme="dark"] .btn-primary,
+  :root[data-theme="dark"] button[variant="primary"] {
+    background: linear-gradient(90deg, #00E6CA, #00B1E5);
+    color: white;
+    border: none;
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--border-radius-sm);
+    padding: 12px 24px;
+    transition: all 0.2s ease;
+  }
+  
+  :root[data-theme="dark"] .btn-primary:hover,
+  :root[data-theme="dark"] button[variant="primary"]:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+    filter: brightness(1.1);
+  }
+  
+  :root[data-theme="dark"] .btn-outline,
+  :root[data-theme="dark"] button[variant="outline"] {
+    background-color: transparent;
+    color: var(--text-primary);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    border-radius: var(--border-radius-sm);
+    padding: 12px 24px;
+    font-weight: var(--font-weight-medium);
+    transition: all 0.2s ease;
+  }
+  
+  :root[data-theme="dark"] .btn-outline:hover,
+  :root[data-theme="dark"] button[variant="outline"]:hover {
+    border-color: rgba(99, 102, 241, 0.8);
+    background-color: rgba(99, 102, 241, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  /* Correction spécifique pour les icônes de la page de connexion */
+  .relative .absolute.left-3.top-1\/2.-translate-y-1\/2.w-5.h-5.text-secondary-color {
+    color: var(--text-secondary) !important;
+    opacity: 0.8;
+    z-index: 10;
+  }
+  
+  /* Nouvelles classes pour les champs de formulaire avec icônes */
+  .form-field {
+    margin-bottom: 24px;
+  }
+  
+  .form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: var(--font-weight-medium);
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+  
+  .form-field-with-icon {
+    position: relative;
+  }
+  
+  .form-field-with-icon input {
+    padding-left: 48px !important;
+    height: var(--input-height);
+  }
+  
+  .form-field-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    opacity: 0.7;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  /* Correction pour les icônes dans les champs de formulaire */
+  .relative input[type="text"],
+  .relative input[type="email"],
+  .relative input[type="password"],
+  .relative input[type="search"] {
+    padding-left: 44px !important; /* Espace suffisant pour l'icône */
+    height: var(--input-height);
+  }
+
+  .relative input[type="text"],
+  .relative input[type="email"],
+  .relative input[type="password"]{
+    padding-left: 15px !important; /* Espace suffisant pour l'icône */
+  }
+  
+  .relative .absolute.left-3.top-1\/2.-translate-y-1\/2 {
+    left: 16px;
+    z-index: 10;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  /* Amélioration des modales - espacement et alignement */
+  div[role="dialog"] > div {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 0;
+  }
+  
+  div[role="dialog"] > div > div {
+    padding: 24px;
+  }
+  
+  div[role="dialog"] h2 {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 16px;
+  }
+  
+  /* Amélioration des sélecteurs */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23717171' viewBox='0 0 16 16'%3E%3Cpath d='M8 10.5l4-4H4l4 4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px !important;
+  }
+  
+  /* Ajustements pour les boutons en ligne et groupes de boutons */
+  .button-group {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .button-group button {
+    flex: 1;
+  }
+  
+  /* Correction d'espacement pour les formulaires */
+  form .space-y-4 > div {
+    margin-bottom: 20px;
+  }
+  
+  form .space-y-4 > div:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Correction pour le modal de sélection d'utilisateur */
+  .modal-user-selector-content {
+    max-width: 800px !important;
+    width: 100%;
+  }
+  
+  /* Amélioration des tableaux dans les modales */
+  div[role="dialog"] table {
+    width: 100%;
+    margin-top: 16px;
+  }
+  
+  /* Optimisations pour les petits écrans */
+  @media (max-width: 640px) {
+    div[role="dialog"] > div {
+      max-width: 95%;
+      padding: 0;
+    }
+    
+    div[role="dialog"] > div > div {
+      padding: 16px;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .form-field-with-icon input {
+      font-size: 16px; /* Évite le zoom sur les appareils iOS */
+    }
+  }
+  
+  /* Styles spécifiques pour la modal de sélection d'utilisateur */
+  [data-radix-popper-content-wrapper] {
+    z-index: 50 !important;
+  }
+
+  /* Styles pour les éléments de Radix Dialog */
+  /* Ces styles sont appliqués directement aux éléments créés par Radix UI */
+  [data-radix-dialog-overlay] {
+    background: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  [data-radix-dialog-content] {
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 980px !important;
+    max-height: 90vh;
+    z-index: 50;
+    overflow: auto;
+    animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Spécifique au mode clair */
+  :root:not([data-theme="dark"]) [data-radix-dialog-content] {
+    background-color: #fff;
+    box-shadow: var(--card-shadow);
+  }
+  
+  /* Styles pour les sélecteurs d'éléments dans le dialog */
+  [data-radix-dialog-title] {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+  }
+  
+  [data-radix-dialog-description] {
+    margin-top: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  
+  [data-radix-dialog-close] {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 8px;
+    border-radius: 100%;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+  }
+  
+  [data-radix-dialog-close]:hover {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  /* Styles pour éviter les problèmes de survol */
+  :root[data-theme="dark"] [data-radix-dialog-content] table tbody tr:hover {
+    background-color: rgba(55, 58, 64, 0.3);
+    box-shadow: none;
+    transform: none;
+  }
+
+  :root:not([data-theme="dark"]) [data-radix-dialog-content] table tbody tr:hover {
+    background-color: rgba(245, 245, 245, 0.8);
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+.formBox  input[type="text"],
+.formBox  input[type="email"],
+.formBox  input[type="password"]{
+  padding-left: 40px !important; /* Espace suffisant pour l'icône */
+}
+.secondModalScroll .space-y-4{
+overflow-y: auto;
+max-height: calc(100vh - 200px);
+}
+@media (max-width: 768px) {
+  .sideBar {
+    padding:5px 0px !important;
+  }
+}
