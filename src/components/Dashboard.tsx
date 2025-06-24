@@ -464,12 +464,12 @@ export default function Dashboard() {
           Math.abs(new Date().getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24)
         );
 
-        // let status: TeamMember['status'] = 'Hors ligne';
-        // if (daysSinceLastConnection > 7) {
-        //   status = 'Inactif';
-        // } else if (daysSinceLastConnection < 1) {
-        //   status = 'En ligne';
-        // }
+        let status: TeamMember['status'] = 'Hors ligne';
+        if (daysSinceLastConnection > 7) {
+          status = 'Inactif';
+        } else if (daysSinceLastConnection < 1) {
+          status = 'En ligne';
+        }
 
         return {
           id: doc.id,
