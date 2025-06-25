@@ -4,11 +4,11 @@
  * and CRUD operations for both users and companies
  */
 
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, Search, Edit2, Trash2, X, Upload, AlertCircle, 
   Building2, SortAsc, SortDesc, Filter, Users, Link, Code,
-  LayoutGrid, UserCog, Image, Key
+  LayoutGrid, Image
 } from 'lucide-react';
 import { getUsers, deleteUser, updateUser, createUser } from '../lib/users';
 import { 
@@ -28,7 +28,6 @@ import { formatDate } from '../utils/formatters';
 import { isValidIpAddress } from '../lib/api';
 import type { User, NewUser, Company, UpdateUserData, Group, UpdateCompanyData } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
-import { AuthContext } from '../contexts/AuthContext';
 
 /**
  * Check if content is HTML rather than a URL
@@ -38,6 +37,8 @@ const isHtmlContent = (content: string): boolean => {
          content.includes('</') || 
          content.includes('/>');
 };
+
+
 
 /**
  * UserManagement component for administration interface
@@ -99,11 +100,9 @@ export default function UserManagement() {
   
   const { filters, updateFilter } = useFilter();
 
-  // Add this new state for company-specific Power BI URLs for PDG users
+  // Legacy company-specific Power BI URLs for PDG users (keeping for backward compatibility)
   const [companyPowerBiUrls, setCompanyPowerBiUrls] = useState<{[companyName: string]: string}>({});
   const [editCompanyPowerBiUrls, setEditCompanyPowerBiUrls] = useState<{[companyName: string]: string}>({});
-
-  const { sendPasswordResetEmail } = useContext(AuthContext);
 
   // =============== Lifecycle Hooks ===============
   
@@ -120,10 +119,25 @@ export default function UserManagement() {
   useEffect(() => {
     if (editingUser?.powerBiUrl) {
       setIsPowerBiHtml(isHtmlContent(editingUser.powerBiUrl));
+      
+      // Handle legacy PDG company URLs
+      if (editingUser.role === 'PDG' && editingUser.group) {
+        const groupCompanies = companies.filter(c => c.group === editingUser.group);
+        if (groupCompanies.length > 0) {
+          try {
+            const parsed = JSON.parse(editingUser.powerBiUrl);
+            if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+              setEditCompanyPowerBiUrls(parsed);
+            }
+          } catch {
+            // Not JSON, ignore
+          }
+        }
+      }
     } else {
       setIsPowerBiHtml(false);
     }
-  }, [editingUser]);
+  }, [editingUser, companies]);
 
   /**
    * Extract unique groups from users and companies when data changes
@@ -142,6 +156,8 @@ export default function UserManagement() {
     
     setGroups(allGroups);
   }, [users, companies]);
+
+
 
   // =============== Data Operations ===============
   
@@ -228,7 +244,8 @@ export default function UserManagement() {
   
       const userData = { ...newUser } as NewUser;
   
-      // If user is PDG and has a group with companies, store company-specific Power BI URLs
+      // Handle Power BI URLs - now using simple fields
+      // Keep the legacy PDG company-specific URLs for backward compatibility
       if (userData.role === 'PDG' && userData.group) {
         const groupCompanies = companies.filter(c => c.group === userData.group);
   
@@ -293,10 +310,12 @@ export default function UserManagement() {
         name: editingUser.name,
         company: editingUser.company,
         role: editingUser.role,
-        group: editingUser.group
+        group: editingUser.group,
+        powerBiUrl: editingUser.powerBiUrl,
+        powerBiUrl2: editingUser.powerBiUrl2
       };
 
-      // If user is PDG with a group that has companies, handle multiple Power BI URLs
+      // Handle legacy PDG company-specific Power BI URLs for backward compatibility
       if (editingUser.role === 'PDG' && editingUser.group) {
         const groupCompanies = companies.filter(c => c.group === editingUser.group);
         
@@ -311,9 +330,6 @@ export default function UserManagement() {
           // Store the company Power BI URLs as a JSON string in the user's powerBiUrl field
           updateData.powerBiUrl = JSON.stringify(editCompanyPowerBiUrls);
         }
-      } else {
-        // For non-PDG users or PDG without a group/companies, use the single powerBiUrl
-        updateData.powerBiUrl = editingUser.powerBiUrl;
       }
 
       // Add image if selected
@@ -910,18 +926,53 @@ export default function UserManagement() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          {user.powerBiUrl ? (
-                            <div className="flex items-center gap-1 text-primary">
-                              {isHtmlContent(user.powerBiUrl) ? (
-                                <Code className="w-4 h-4" />
-                              ) : (
-                                <Link className="w-4 h-4" />
-                              )}
-                              <span>Configuré</span>
-                            </div>
-                          ) : (
-                            <span className="text-secondary-color">Non configuré</span>
-                          )}
+                          {(() => {
+                            const urlCount = [user.powerBiUrl, user.powerBiUrl2].filter(Boolean).length;
+                            
+                            if (urlCount > 0) {
+                              return (
+                                <div className="flex items-center gap-1 text-primary">
+                                  <LayoutGrid className="w-4 h-4" />
+                                  <span>{urlCount} URL{urlCount > 1 ? 's' : ''}</span>
+                                </div>
+                              );
+                            } else if (user.powerBiUrl) {
+                              // Check for legacy formats
+                              try {
+                                const parsed = JSON.parse(user.powerBiUrl);
+                                if (Array.isArray(parsed)) {
+                                  return (
+                                    <div className="flex items-center gap-1 text-primary">
+                                      <LayoutGrid className="w-4 h-4" />
+                                      <span>{parsed.length} dashboard{parsed.length > 1 ? 's' : ''}</span>
+                                    </div>
+                                  );
+                                } else if (typeof parsed === 'object') {
+                                  const count = Object.keys(parsed).length;
+                                  return (
+                                    <div className="flex items-center gap-1 text-primary">
+                                      <Building2 className="w-4 h-4" />
+                                      <span>{count} entreprise{count > 1 ? 's' : ''}</span>
+                                    </div>
+                                  );
+                                }
+                              } catch {
+                                // Single URL/HTML
+                                return (
+                                  <div className="flex items-center gap-1 text-primary">
+                                    {isHtmlContent(user.powerBiUrl) ? (
+                                      <Code className="w-4 h-4" />
+                                    ) : (
+                                      <Link className="w-4 h-4" />
+                                    )}
+                                    <span>Configuré</span>
+                                  </div>
+                                );
+                              }
+                            }
+                            
+                            return <span className="text-secondary-color">Non configuré</span>;
+                          })()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           {/* <button 
@@ -1338,30 +1389,37 @@ export default function UserManagement() {
               </div>
             )}
 
-            {/* Show Power BI URL field only if:
-                - User is not PDG, OR
-                - User is PDG but no group is selected, OR
-                - User is PDG with a group but the group has no companies */}
-            {(!newUser.role || 
-              newUser.role !== 'PDG' || 
-              !newUser.group || 
-              companies.filter(c => c.group === newUser.group).length === 0) && (
-              <div>
-                <label className="block text-sm font-medium text-primary-color mb-1">
-                  URL Power BI (optionnel)
-                </label>
-                <input
-                  type="url"
-                  value={newUser.powerBiUrl || ''}
-                  onChange={(e) => setNewUser({ ...newUser, powerBiUrl: e.target.value })}
-                  placeholder="https://app.powerbi.com/..."
-                  className="w-full px-3 py-2 bg-theme border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-primary-color"
-                />
-                <p className="mt-1 text-xs text-secondary-color">
-                  URL d'intégration du tableau de bord Power BI (utilisez l'option "Publier sur le web")
-                </p>
-              </div>
-            )}
+            {/* Power BI URLs Section */}
+            <div>
+              <label className="block text-sm font-medium text-primary-color mb-1">
+                URL Power BI 1 (optionnel)
+              </label>
+              <input
+                type="url"
+                value={newUser.powerBiUrl || ''}
+                onChange={(e) => setNewUser({ ...newUser, powerBiUrl: e.target.value })}
+                placeholder="https://app.powerbi.com/..."
+                className="w-full px-3 py-2 bg-theme border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-primary-color"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-primary-color mb-1">
+                URL Power BI 2 (optionnel)
+              </label>
+              <input
+                type="url"
+                value={newUser.powerBiUrl2 || ''}
+                onChange={(e) => setNewUser({ ...newUser, powerBiUrl2: e.target.value })}
+                placeholder="https://app.powerbi.com/..."
+                className="w-full px-3 py-2 bg-theme border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-primary-color"
+              />
+              <p className="mt-1 text-xs text-secondary-color">
+                URLs d'intégration des tableaux de bord Power BI (utilisez l'option "Publier sur le web")
+              </p>
+            </div>
+
+
 
             {/* Show company Power BI URLs section only for PDG with selected group that has companies */}
             {newUser.role === 'PDG' && newUser.group && 
@@ -1577,6 +1635,39 @@ export default function UserManagement() {
                   )}
                 </div>
               )}
+
+              {/* Power BI URLs Section */}
+              <div>
+                <label className="block text-sm font-medium text-primary-color mb-1">
+                  URL Power BI 1 (optionnel)
+                </label>
+                <input
+                  type="url"
+                  value={editingUser.powerBiUrl || ''}
+                  onChange={(e) => setEditingUser({ ...editingUser, powerBiUrl: e.target.value })}
+                  placeholder="https://app.powerbi.com/..."
+                  className="w-full px-3 py-2 bg-theme border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-primary-color"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary-color mb-1">
+                  URL Power BI 2 (optionnel)
+                </label>
+                <input
+                  type="url"
+                  value={editingUser.powerBiUrl2 || ''}
+                  onChange={(e) => setEditingUser({ ...editingUser, powerBiUrl2: e.target.value })}
+                  placeholder="https://app.powerbi.com/..."
+                  className="w-full px-3 py-2 bg-theme border border-theme rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-primary-color"
+                />
+              </div>
+
+              <p className="mt-1 text-xs text-secondary-color">
+                URLs d'intégration des tableaux de bord Power BI (utilisez l'option "Publier sur le web")
+              </p>
+
+
 
               {/* Show Power BI URL field only if:
                   - User is not PDG, OR

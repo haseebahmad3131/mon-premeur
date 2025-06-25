@@ -464,10 +464,15 @@ export default function Dashboard() {
           Math.abs(new Date().getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24)
         );
 
-        let status: TeamMember['status'] = 'Hors ligne';
-        if (daysSinceLastConnection > 7) {
-          status = 'Inactif';
-        } else if (daysSinceLastConnection < 1) {
+        // let status: TeamMember['status'] = 'Hors ligne';
+        // if (daysSinceLastConnection > 7) {
+        //   status = 'Inactif';
+        // } else if (daysSinceLastConnection < 1) {
+        //   status = 'En ligne';
+        // }        
+        
+        let status: TeamMember['status'] = '';
+        if (daysSinceLastConnection < 1) {
           status = 'En ligne';
         }
 
@@ -644,6 +649,7 @@ export default function Dashboard() {
   // Filtrer les données de connexion par période sélectionnée
   const filteredConnections = filterDataByPeriod(teamConnections, selectedPeriod);
  console.log(User);
+
   return (
     <div className="space-y-8">
       {/* Bannière de bienvenue avec sélecteur d'utilisateur pour les admins */}
@@ -656,14 +662,14 @@ export default function Dashboard() {
               </h1>
               
               {/* Badge "Vue Utilisateur" quand un admin voit le dashboard d'un autre utilisateur */}
-              {viewingUser && auth?.user?.role === 'Admin' && (
+              { auth?.user?.role === 'Admin' && (
                 <span className="px-2 py-1 text-xs w-fit font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 rounded-full border border-amber-200 dark:border-amber-700/50">
                   Vue Utilisateur
                 </span>
               )}
               
               {/* Bouton pour retourner à la vue admin */}
-              {viewingUser && auth?.user?.role === 'Admin' && (
+              { auth?.user?.role === 'Admin' && (
                 <button
                   onClick={resetToAdminView}
                   className={`ml-2 text-xs text-primary ${isDark ? '' : 'hover:underline'} flex items-center gap-1`}
@@ -699,94 +705,96 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
+      
       {/* Boutons d'action */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link
-          to="/analytics"
-          className={`${
-            isDark
-              ? "card-gradient border border-theme p-3"
-              : "card-gradient border border-theme hover:border-primary/50 transition-colors"
-          } rounded-lg font-medium p-3`}
-        >
-          <BarChart3 className={`w-5 h-5 mr-2 ${isDark ? "text-primary" : "text-red-500"}`} />
-          <span className={isDark ? "gradient-text" : " text-primary-color"}>Outil d&apos;analyse</span>
-        </Link>
-        <button 
-          className={`${
-            isDark
-              ? "card-gradient border border-theme p-3 text-left"
-              : "card-gradient border border-theme hover:border-primary/50 transition-colors"
-          } rounded-lg font-medium p-3`}
-        >
-          <Video className={`w-5 h-5 mr-2 ${isDark ? "text-primary" : "text-red-500"}`} />
-          <span className={isDark ? "gradient-text" : "text-primary-color"}>Vidéos tutoriels</span>
-        </button>
-      </div>
+      {auth?.user?.role === 'Admin' && <div className="flex flex-col sm:flex-row gap-4">
+          <Link
+            to="/analytics"
+            className={`${
+              isDark
+                ? "card-gradient border border-theme p-3"
+                : "card-gradient border border-theme hover:border-primary/50 transition-colors"
+            } rounded-lg font-medium p-3`}
+          >
+            <BarChart3 className={`w-5 h-5 mr-2 ${isDark ? "text-primary" : "text-red-500"}`} />
+            <span className={isDark ? "gradient-text" : " text-primary-color"}>Outil d&apos;analyse</span>
+          </Link>
+          <button 
+            className={`${
+              isDark
+                ? "card-gradient border border-theme p-3 text-left"
+                : "card-gradient border border-theme hover:border-primary/50 transition-colors"
+            } rounded-lg font-medium p-3`}
+          >
+            <Video className={`w-5 h-5 mr-2 ${isDark ? "text-primary" : "text-red-500"}`} />
+            <span className={isDark ? "gradient-text" : "text-primary-color"}>Vidéos tutoriels</span>
+          </button>
+        </div>
+      }
 
       {/* Cartes de statistiques */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Carte des jours d'activité */}
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-secondary-color">Jours d'activité</p>
-              <p className="text-2xl font-semibold text-primary-color">
-                {isLoading ? '...' : stats.activeUsers}
-              </p>
-            </div>
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Users className="w-6 h-6 text-primary" />
+      { auth?.user?.role === 'Admin' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Carte des jours d'activité */}
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-secondary-color">Jours d'activité</p>
+                <p className="text-2xl font-semibold text-primary-color">
+                  {isLoading ? '...' : stats.activeUsers}
+                </p>
+              </div>
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Carte des connexions totales */}
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-secondary-color">Connexions Totales</p>
-              <p className="text-2xl font-semibold text-primary-color">
-                {isLoading ? '...' : stats.totalLogins}
-              </p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-full">
-              <BarChart3 className="w-6 h-6 text-secondary" />
+          {/* Carte des connexions totales */}
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-secondary-color">Connexions Totales</p>
+                <p className="text-2xl font-semibold text-primary-color">
+                  {isLoading ? '...' : stats.totalLogins}
+                </p>
+              </div>
+              <div className="p-3 bg-secondary/10 rounded-full">
+                <BarChart3 className="w-6 h-6 text-secondary" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Carte de session moyenne */}
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-secondary-color">Durée Moyenne</p>
-              <p className="text-2xl font-semibold text-primary-color">
-                {isLoading ? '...' : stats.averageSessionTime}
-              </p>
-            </div>
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Clock className="w-6 h-6 text-primary" />
+          {/* Carte de session moyenne */}
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-secondary-color">Durée Moyenne</p>
+                <p className="text-2xl font-semibold text-primary-color">
+                  {isLoading ? '...' : stats.averageSessionTime}
+                </p>
+              </div>
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Clock className="w-6 h-6 text-primary" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Carte de dernière connexion */}
-        <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-secondary-color">Dernière Connexion</p>
-              <p className="text-2xl font-semibold text-primary-color">
-                {isLoading ? '...' : stats.lastSync}
-              </p>
-            </div>
-            <div className="p-3 bg-secondary/10 rounded-full">
-              <RefreshCw className="w-6 h-6 text-secondary" />
+          {/* Carte de dernière connexion */}
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-secondary-color">Dernière Connexion</p>
+                <p className="text-2xl font-semibold text-primary-color">
+                  {isLoading ? '...' : stats.lastSync}
+                </p>
+              </div>
+              <div className="p-3 bg-secondary/10 rounded-full">
+                <RefreshCw className="w-6 h-6 text-secondary" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      }
 
       {/* Blocs d'analyse et d'activité de l'équipe */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -903,79 +911,80 @@ export default function Dashboard() {
         </div>
 
         {/* Activités de l'équipe */}
-        <div className="card-gradient border border-theme rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-primary-color">Activités de l&apos;équipe</h2>
-            <Users className="w-5 h-5 text-primary" />
-          </div>
-          {teamMembers.length > 0 ? (
-            <div className="space-y-6">
-              {teamMembers.map((member, index) => {
-                const daysSinceLastConnection = Math.ceil(
-                  Math.abs(new Date().getTime() - member.lastConnection.getTime()) / (1000 * 60 * 60 * 24)
-                );
-                const isInactive = daysSinceLastConnection > 7;
+        { auth?.user?.role !== 'Admin' && auth?.user?.role !== 'Employé' && <div className="card-gradient border border-theme rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-primary-color">Activités de l&apos;équipe</h2>
+              <Users className="w-5 h-5 text-primary" />
+            </div>
+            {teamMembers.length > 0 ? (
+              <div className="space-y-6">
+                {teamMembers.map((member, index) => {
+                  const daysSinceLastConnection = Math.ceil(
+                    Math.abs(new Date().getTime() - member.lastConnection.getTime()) / (1000 * 60 * 60 * 24)
+                  );
+                  const isInactive = daysSinceLastConnection > 7;
 
-                return (
-                  <Dialog.Root key={index} open={selectedUser?.id === member.id} onOpenChange={(open) => setSelectedUser(open ? member : null)}>
-                    <Dialog.Trigger asChild>
-                      <button 
-                        className={`w-full text-left p-4 rounded-lg border ${
-                          isInactive ? 'border-red-500/20 bg-red-500/10' : 'border-theme'
-                        } ${isDark ? '' : 'hover:border-primary/50'} transition-colors`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 ">
-                              <span className="text-sm font-medium text-primary-color">
-                                {member.name}
-                              </span>
-                              <span 
-                                className="px-2 py-0.5 text-xs rounded-full"
-                                style={{
-                                  backgroundColor: `${roleColors[member.role]}20`,
-                                  color: roleColors[member.role]
-                                }}
-                              >
-                                {member.role}
-                              </span>
-                              <span 
-                                className="px-2 py-0.5 text-xs rounded-full"
-                                style={{
-                                  backgroundColor: `${statusColors[member.status]}20`,
-                                  color: statusColors[member.status]
-                                }}
-                              >
-                                {member.status}
-                              </span>
+                  return (
+                    <Dialog.Root key={index} open={selectedUser?.id === member.id} onOpenChange={(open) => setSelectedUser(open ? member : null)}>
+                      <Dialog.Trigger asChild>
+                        <button 
+                          className={`w-full text-left p-4 rounded-lg border ${
+                            isInactive ? 'border-red-500/20 bg-red-500/10' : 'border-theme'
+                          } ${isDark ? '' : 'hover:border-primary/50'} transition-colors`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 ">
+                                <span className="text-sm font-medium text-primary-color">
+                                  {member.name}
+                                </span>
+                                <span 
+                                  className="px-2 py-0.5 text-xs rounded-full"
+                                  style={{
+                                    backgroundColor: `${roleColors[member.role]}20`,
+                                    color: roleColors[member.role]
+                                  }}
+                                >
+                                  {member.role}
+                                </span>
+                                <span 
+                                  className="px-2 py-0.5 text-xs rounded-full"
+                                  style={{
+                                    backgroundColor: `${statusColors[member.status]}20`,
+                                    color: statusColors[member.status]
+                                  }}
+                                >
+                                  {member.status}
+                                </span>
+                              </div>
+                              <p className="text-sm text-secondary-color">
+                                Dernière connexion : {formatLastConnection(member.lastConnection)}
+                              </p>
                             </div>
-                            <p className="text-sm text-secondary-color">
-                              Dernière connexion : {formatLastConnection(member.lastConnection)}
-                            </p>
+                            {isInactive ? (
+                              <AlertTriangle className="w-5 h-5" style={{ color: statusColors['Inactif'] }} />
+                            ) : (
+                              <Clock className="w-5 h-5" style={{ color: roleColors[member.role] }} />
+                            )}
                           </div>
-                          {isInactive ? (
-                            <AlertTriangle className="w-5 h-5" style={{ color: statusColors['Inactif'] }} />
-                          ) : (
-                            <Clock className="w-5 h-5" style={{ color: roleColors[member.role] }} />
+                          {isInactive && (
+                            <p className="mt-2 text-xs" style={{ color: statusColors['Inactif'] }}>
+                              Aucune activité depuis plus d&apos;une semaine
+                            </p>
                           )}
-                        </div>
-                        {isInactive && (
-                          <p className="mt-2 text-xs" style={{ color: statusColors['Inactif'] }}>
-                            Aucune activité depuis plus d&apos;une semaine
-                          </p>
-                        )}
-                      </button>
-                    </Dialog.Trigger>
-                  </Dialog.Root>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="p-8 text-center text-secondary-color">
-              <p>Aucun membre d'équipe trouvé</p>
-            </div>
-          )}
-        </div>
+                        </button>
+                      </Dialog.Trigger>
+                    </Dialog.Root>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-8 text-center text-secondary-color">
+                <p>Aucun membre d'équipe trouvé</p>
+              </div>
+            )}
+          </div>
+        }
 
           {/* Historique de connexions */}
           <div className=" lg:col-span-2 card-gradient border border-theme rounded-xl p-6">

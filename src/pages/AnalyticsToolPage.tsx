@@ -8,13 +8,14 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 // Interface for the user view data (must match the one in Dashboard.tsx)
-interface UserViewData {
+interface User {
   id: string;
-  name: string;
   email: string;
+  name: string;
   company: string;
   role: 'PDG' | 'Dirigeant' | 'Employé' | 'Admin';
   powerBiUrl?: string;
+  powerBiUrl2?: string;
   lastLogin: string;
   loginHistory: any[];
 }
@@ -22,6 +23,13 @@ interface UserViewData {
 interface CompanyPowerBILink {
   companyName: string;
   powerBiUrl: string;
+}
+
+interface PowerBILink {
+  id: string;
+  name: string;
+  url: string;
+  isHtml: boolean;
 }
 
 /**
@@ -36,6 +44,40 @@ const parseCompanyPowerBILinks = (jsonString: string): CompanyPowerBILink[] => {
     }));
   } catch (error) {
     console.error('Error parsing PowerBI URLs:', error);
+    return [];
+  }
+};
+
+/**
+ * Parse Power BI URLs from JSON string - handles both legacy and new formats
+ */
+const parsePowerBILinks = (jsonString: string): PowerBILink[] => {
+  try {
+    const parsed = JSON.parse(jsonString);
+    
+    // Handle legacy format (company name -> URL mapping for PDG)
+    if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return Object.entries(parsed).map(([name, url], index) => ({
+        id: `legacy-${index}`,
+        name,
+        url: url as string,
+        isHtml: isHtmlContent(url as string)
+      }));
+    }
+    
+    // Handle new format (array of Power BI links)
+    if (Array.isArray(parsed)) {
+      return parsed.map((link, index) => ({
+        id: link.id || `link-${index}`,
+        name: link.name || `Dashboard ${index + 1}`,
+        url: link.url || '',
+        isHtml: link.isHtml || isHtmlContent(link.url || '')
+      }));
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error parsing Power BI URLs:', error);
     return [];
   }
 };
@@ -81,6 +123,41 @@ const CompanyCard = ({
 };
 
 /**
+ * Power BI Link Card Component for multiple dashboards view
+ */
+const PowerBILinkCard = ({ 
+  link, 
+  onSelect 
+}: { 
+  link: PowerBILink; 
+  onSelect: () => void;
+}) => {
+  return (
+    <div className="bg-card p-6 rounded-lg border border-theme hover:border-primary transition-colors cursor-pointer"
+         onClick={onSelect}
+         role="button"
+         tabIndex={0}
+         onKeyDown={(e) => e.key === 'Enter' && onSelect()}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-primary-color">{link.name}</h3>
+        <div className="flex items-center gap-2">
+          {link.isHtml ? (
+            <div className="text-xs px-2 py-1 bg-secondary/10 text-secondary rounded">HTML</div>
+          ) : (
+            <div className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">URL</div>
+          )}
+          <ExternalLink className="w-5 h-5 text-secondary-color" />
+        </div>
+      </div>
+      <p className="text-sm text-secondary-color">
+        Cliquez pour voir ce tableau de bord Power BI
+      </p>
+    </div>
+  );
+};
+
+/**
  * Page d'outil d'analyse avec intégration PowerBI
  */
 export default function AnalyticsToolPage() {
@@ -97,8 +174,12 @@ export default function AnalyticsToolPage() {
   const [companyLinks, setCompanyLinks] = useState<CompanyPowerBILink[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<CompanyPowerBILink | null>(null);
   
+  // New state for multiple Power BI URLs
+  const [powerBiLinks, setPowerBiLinks] = useState<PowerBILink[]>([]);
+  const [selectedPowerBiLink, setSelectedPowerBiLink] = useState<PowerBILink | null>(null);
+  
   // Viewing user state (for admin view as user)
-  const [viewingUser, setViewingUser] = useState<UserViewData | null>(null);
+  const [viewingUser, setViewingUser] = useState<User | null>(null);
   
   // URL d'intégration PowerBI d'exemple (utilisée uniquement si l'utilisateur n'en a pas)
   const examplePowerBiEmbed = "https://app.powerbi.com/view?r=eyJrIjoiOGNmYjExMDItZjZkOC00YjM5LWE4OWMtYzAxODM2OTIwNGIwIiwidCI6ImZmMDc2NmVmLTkwNzMtNDgzNy1hMDkwLTM4OGE0ZTM0ZGVhZiJ9";
@@ -127,6 +208,7 @@ export default function AnalyticsToolPage() {
                 company: userData.company || '',
                 role: userData.role || '',
                 powerBiUrl: userData.powerBiUrl || '',
+                powerBiUrl2: userData.powerBiUrl2 || '',
                 lastLogin: userData.lastLogin || '',
                 loginHistory: userData.loginHistory || []
               });
@@ -165,26 +247,76 @@ export default function AnalyticsToolPage() {
       if (currentUser?.powerBiUrl) {
         const content = currentUser.powerBiUrl;
         
-        // Check if user is PDG and content is JSON
-        if (currentUser.role === 'PDG' && content.startsWith('{')) {
-          const links = parseCompanyPowerBILinks(content);
-          setCompanyLinks(links);
+        // Check if user has multiple simple URLs
+        const urls = [currentUser.powerBiUrl, currentUser.powerBiUrl2].filter(Boolean);
+        
+        if (urls.length > 1) {
+          // Create simple Power BI links from multiple URL fields
+          const links = urls.map((url, index) => ({
+            id: `url-${index + 1}`,
+            name: `Dashboard ${index + 1}`,
+            url: url!,
+            isHtml: isHtmlContent(url!)
+          }));
+          
+          setPowerBiLinks(links);
+          setSelectedPowerBiLink(null);
+          setCompanyLinks([]);
           setSelectedCompany(null);
           setPowerBiContent(undefined);
           setIsLoading(false);
           return;
         }
         
-        // Regular PowerBI content handling
+        // Try to parse as JSON for legacy formats
+        if (content.startsWith('{') || content.startsWith('[')) {
+          try {
+            const parsed = JSON.parse(content);
+            
+            // Handle legacy PDG company format (object with company names as keys)
+            if (currentUser.role === 'PDG' && typeof parsed === 'object' && !Array.isArray(parsed)) {
+              const links = parseCompanyPowerBILinks(content);
+              setCompanyLinks(links);
+              setSelectedCompany(null);
+              setPowerBiLinks([]);
+              setSelectedPowerBiLink(null);
+              setPowerBiContent(undefined);
+              setIsLoading(false);
+              return;
+            }
+            
+            // Handle legacy array format
+            if (Array.isArray(parsed)) {
+              const links = parsePowerBILinks(content);
+              setPowerBiLinks(links);
+              setSelectedPowerBiLink(null);
+              setCompanyLinks([]);
+              setSelectedCompany(null);
+              setPowerBiContent(undefined);
+              setIsLoading(false);
+              return;
+            }
+          } catch (error) {
+            console.error('Error parsing PowerBI content:', error);
+          }
+        }
+        
+        // Regular single PowerBI content handling
         const contentIsHtml = isHtmlContent(content);
         setPowerBiContent(content);
         setIsHtml(contentIsHtml);
         setContentError(false);
         setCompanyLinks([]);
+        setPowerBiLinks([]);
+        setSelectedCompany(null);
+        setSelectedPowerBiLink(null);
       } else {
         setPowerBiContent(examplePowerBiEmbed);
         setIsHtml(false);
         setCompanyLinks([]);
+        setPowerBiLinks([]);
+        setSelectedCompany(null);
+        setSelectedPowerBiLink(null);
       }
       
       setEmbedKey(prev => prev + 1);
@@ -217,10 +349,29 @@ export default function AnalyticsToolPage() {
   };
 
   /**
+   * Handle Power BI link selection for multiple dashboards
+   */
+  const handlePowerBiLinkSelect = (link: PowerBILink) => {
+    setSelectedPowerBiLink(link);
+    setPowerBiContent(link.url);
+    setIsHtml(link.isHtml);
+    setContentError(false);
+    setEmbedKey(prev => prev + 1);
+  };
+
+  /**
    * Return to company selection
    */
   const handleBackToCompanies = () => {
     setSelectedCompany(null);
+    setPowerBiContent(undefined);
+  };
+
+  /**
+   * Return to Power BI links selection
+   */
+  const handleBackToPowerBiLinks = () => {
+    setSelectedPowerBiLink(null);
     setPowerBiContent(undefined);
   };
 
@@ -278,6 +429,25 @@ export default function AnalyticsToolPage() {
             companyName={company.companyName}
             powerBiUrl={company.powerBiUrl}
             onSelect={() => handleCompanySelect(company)}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  /**
+   * Render Power BI link cards for multiple dashboards view
+   */
+  const renderPowerBiLinkCards = () => {
+    if (powerBiLinks.length === 0) return null;
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {powerBiLinks.map((link) => (
+          <PowerBILinkCard
+            key={link.id}
+            link={link}
+            onSelect={() => handlePowerBiLinkSelect(link)}
           />
         ))}
       </div>
@@ -350,7 +520,9 @@ export default function AnalyticsToolPage() {
             <p className="text-sm text-secondary-color">
               {currentUser?.role === 'PDG' 
                 ? "Visualisez les tableaux de bord de toutes vos entreprises"
-                : "Visualisez et analysez vos données en temps réel"
+                : powerBiLinks.length > 0
+                  ? "Sélectionnez un tableau de bord à visualiser"
+                  : "Visualisez et analysez vos données en temps réel"
               }
             </p>
           </div>
@@ -378,7 +550,9 @@ export default function AnalyticsToolPage() {
         <p className="text-primary-color">
           {currentUser?.role === 'PDG' 
             ? "En tant que PDG, vous avez accès aux tableaux de bord de toutes vos entreprises. Sélectionnez une entreprise ci-dessous pour visualiser ses données."
-            : "Utilisez cet outil d'analyse pour explorer vos données et obtenir des insights précieux sur les performances de votre entreprise et visualiser les leviers de croissance."
+            : powerBiLinks.length > 0
+              ? "Vous avez accès à plusieurs tableaux de bord Power BI. Sélectionnez celui que vous souhaitez visualiser ci-dessous."
+              : "Utilisez cet outil d'analyse pour explorer vos données et obtenir des insights précieux sur les performances de votre entreprise et visualiser les leviers de croissance."
           }
         </p>
       </div>
@@ -389,9 +563,13 @@ export default function AnalyticsToolPage() {
           <h2 className="text-lg font-semibold text-primary-color">
             {selectedCompany 
               ? `Tableau de bord - ${selectedCompany.companyName}`
-              : currentUser?.role === 'PDG'
-                ? "Sélectionnez une entreprise"
-                : "Tableau de bord interactif"
+              : selectedPowerBiLink
+                ? selectedPowerBiLink.name
+                : currentUser?.role === 'PDG'
+                  ? "Sélectionnez une entreprise"
+                  : powerBiLinks.length > 0
+                    ? "Sélectionnez un tableau de bord"
+                    : "Tableau de bord interactif"
             }
           </h2>
           <div className="flex gap-2">
@@ -402,6 +580,15 @@ export default function AnalyticsToolPage() {
                 onClick={handleBackToCompanies}
               >
                 Retour aux entreprises
+              </Button>
+            )}
+            {selectedPowerBiLink && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBackToPowerBiLinks}
+              >
+                Retour aux tableaux de bord
               </Button>
             )}
             {powerBiContent && (
@@ -427,16 +614,24 @@ export default function AnalyticsToolPage() {
           </div>
         ) : (
           <div className="min-h-[600px]">
-            {currentUser?.role === 'PDG' && !selectedCompany 
+            {/* Show company cards for PDG without selection */}
+            {currentUser?.role === 'PDG' && !selectedCompany && companyLinks.length > 0
               ? renderCompanyCards()
-              : renderPowerBiContent()
+              /* Show Power BI link cards for users with multiple dashboards */
+              : powerBiLinks.length > 0 && !selectedPowerBiLink
+                ? renderPowerBiLinkCards()
+                /* Show actual Power BI content */
+                : renderPowerBiContent()
             }
           </div>
         )}
       </div>
       
       {/* Conseils d'utilisation */}
-      {(!currentUser?.role || currentUser.role !== 'PDG' || selectedCompany) && (
+      {(!currentUser?.role || 
+        (currentUser.role !== 'PDG' && powerBiLinks.length === 0) || 
+        selectedCompany || 
+        selectedPowerBiLink) && powerBiContent && (
         <div className="bg-card p-6 rounded-lg shadow-sm border border-theme">
           <h3 className="text-md font-semibold text-primary-color mb-3">Conseils d'utilisation</h3>
           <ul className="list-disc list-inside space-y-2 text-secondary-color">

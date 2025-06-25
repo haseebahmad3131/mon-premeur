@@ -10,14 +10,12 @@ export interface User {
   name: string;
   company: string;
   role: 'PDG' | 'Dirigeant' | 'Employé' | 'Admin';
-  profileImageUrl?: string;
+  group?: string;
   powerBiUrl?: string;
+  powerBiUrl2?: string;
+  profileImageUrl?: string;
   lastLogin: string;
-  lastLoginIp?: string;
-  loginCount7Days: number;
-  createdAt: string;
   loginHistory: LoginHistoryEntry[];
-  group?: string; // Groupe d'entreprises (optionnel) - pour les PDG et leurs employés
 }
 
 export interface LoginHistoryEntry {
@@ -61,16 +59,22 @@ export interface DashboardStats {
 // User management related types
 export interface NewUser {
   email: string;
-  password: string;
   name: string;
   company: string;
-  role: User['role'];
-  profileImage?: File;
+  role: 'PDG' | 'Dirigeant' | 'Employé' | 'Admin';
+  group?: string;
   powerBiUrl?: string;
-  group?: string; // Groupe d'entreprises (optionnel) - pour les PDG et leurs employés
+  powerBiUrl2?: string;
+  password?: string;
 }
 
-export interface UpdateUserData extends Partial<User> {
+export interface UpdateUserData {
+  name: string;
+  company: string;
+  role: 'PDG' | 'Dirigeant' | 'Employé' | 'Admin';
+  group?: string;
+  powerBiUrl?: string;
+  powerBiUrl2?: string;
   profileImage?: File;
 }
 
